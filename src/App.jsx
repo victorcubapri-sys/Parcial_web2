@@ -1,0 +1,10 @@
+import {Routes,Route} from 'react-router'
+import Layout from './components/Layout'
+import Dashboard from './pages/Dashboard'
+import Orders from './pages/Orders'
+import NewOrder from './pages/NewOrder'
+import OrderDetail from './pages/OrderDetail'
+import Clients from './pages/Clients'
+import ClientDetail from './pages/ClientDetail'
+import NotFound from './pages/NotFound'
+export default function App(){return <Routes><Route element={<Layout/>}><Route index element={<Dashboard/>}/><Route path="ordenes" element={<Orders/>}/><Route path="ordenes/nueva" element={<NewOrder/>}/><Route path="ordenes/:id" element={<OrderDetail/>}/><Route path="clientes" element={<Clients/>}/><Route path="clientes/:id" element={<ClientDetail/>}/><Route path="*" element={<NotFound/>}/></Route></Routes>}

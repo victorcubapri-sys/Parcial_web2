@@ -1,0 +1,12 @@
+import {useEffect,useState} from 'react'
+import {Link} from 'react-router'
+import {api} from '../services/api'
+import Status from '../components/Status'
+import {LABELS} from '../utils/workflow'
+export default function Dashboard(){
+ const [orders,setOrders]=useState([]),[clients,setClients]=useState(0),[error,setError]=useState('')
+ useEffect(()=>{Promise.all([api.list('ordenes'),api.list('clientes')]).then(([o,c])=>{setOrders(o.items||[]);setClients(c.totalItems||0)}).catch(e=>setError(e.message))},[])
+ const count=s=>orders.filter(o=>o.estado===s).length
+ const cards=[['Órdenes registradas',orders.length,'Total acumulado'],['Solicitadas',count('solicitada'),'Pendientes de revisión'],['En diagnóstico',count('en_diagnostico'),'Equipos en revisión'],['Presupuestadas',count('presupuestada'),'Esperando decisión'],['En reparación',count('en_reparacion'),'Trabajo en curso'],['Listas para entregar',count('lista'),'Esperando al cliente']]
+ return <><div className="page-heading"><div><span className="eyebrow">VISTA GENERAL</span><h1>Resumen del taller</h1><p>Todo el trabajo del taller, en un solo lugar.</p></div><Link className="btn primary" to="/ordenes/nueva">＋ Nueva orden</Link></div>{error&&<p className="error">{error}. Comprueba que PocketBase esté iniciado.</p>}<div className="stats">{cards.map(([t,n,d],i)=><article className="stat" key={t}><span className="stat-mark">{['▤','◷','⌕','＄','⚙','✓'][i]}</span><small>{t}</small><strong>{n}</strong><em>{d}</em></article>)}</div><div className="two-col"><section className="panel"><div className="panel-head"><div><h2>Órdenes recientes</h2><p>Últimos equipos registrados</p></div><Link to="/ordenes">Ver todas →</Link></div>{orders.slice(0,6).map(o=><Link className="recent-row" to={`/ordenes/${o.id}`} key={o.id}><div><b>{o.equipo}</b><small>{o.id.slice(0,8).toUpperCase()}</small></div><Status value={o.estado}/></Link>)}{!orders.length&&<div className="empty">Todavía no hay órdenes registradas.</div>}</section><section className="panel"><div className="panel-head"><div><h2>Actividad del taller</h2><p>Distribución actual por etapa</p></div></div>{Object.entries(LABELS).map(([s,l])=><div className="bar-row" key={s}><span>{l}</span><div className="bar"><i style={{width:`${orders.length?count(s)/orders.length*100:0}%`}}/></div><b>{count(s)}</b></div>)}<div className="client-total"><span>Clientes registrados</span><b>{clients}</b></div></section></div></>
+}

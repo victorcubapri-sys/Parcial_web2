@@ -1,0 +1,4 @@
+import {useEffect,useState} from 'react'
+import {useParams,Link} from 'react-router'
+import {api} from '../services/api'
+export default function ClientDetail(){const {id}=useParams();const [client,setClient]=useState(null),[orders,setOrders]=useState([]),[error,setError]=useState('');useEffect(()=>{Promise.all([api.get('clientes',id),api.list('ordenes',`&filter=${encodeURIComponent(`cliente="${id}"`)}`)]).then(([c,o])=>{setClient(c);setOrders(o.items||[])}).catch(e=>setError(e.message))},[id]);return <><Link to="/clientes" className="back">← Clientes</Link>{error&&<p className="error">{error}</p>}{client&&<><h1>{client.nombre}</h1><p>{client.telefono}</p><section className="panel"><h2>Órdenes del cliente</h2>{orders.map(o=><Link className="recent-row" to={`/ordenes/${o.id}`} key={o.id}>{o.equipo} <b>{o.estado}</b></Link>)}{!orders.length&&<div className="empty">Este cliente todavía no tiene órdenes.</div>}</section></>}</>}
